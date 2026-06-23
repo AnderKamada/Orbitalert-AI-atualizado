@@ -1,0 +1,16 @@
+properties:
+  template:
+    containers:
+      - image: ollama/ollama:latest
+        name: ollama
+        resources:
+          cpu: 1
+          memory: 2Gi
+        volumeMounts:
+          - mountPath: /root/.ollama
+            volumeName: ollama-volume
+
+    volumes:
+      - name: ollama-volume
+        storageName: ollama-storage
+        storageType: AzureFile
