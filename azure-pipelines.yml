@@ -1,0 +1,37 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  imageRepository: 'orbitalert-ai'
+  containerRegistry: 'acr-orbitalert-com'
+  dockerfilePath: 'dockerfiles/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+steps:
+
+- task: Maven@4
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'clean package -DskipTests'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '21'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'target'
+    ArtifactName: 'orbitalert-ai'
+
+- task: Docker@2
+  displayName: Build and Push Image
+  inputs:
+    command: buildAndPush
+    repository: $(imageRepository)
+    dockerfile: $(dockerfilePath)
+    buildContext: '$(Build.SourcesDirectory)'
+    containerRegistry: $(containerRegistry)
+    tags: |
+      latest
+      $(tag)
